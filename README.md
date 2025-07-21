@@ -55,7 +55,7 @@ It's a platform where users can browse job opportunities across Australia throug
 
 1. **Clone the repository**
    ```bash
-   git clone <repository-url>
+   git clone https://github.com/rafiframadhana/work-and-travel-guide-challenge
    cd work-and-travel-guide-challenge
    ```
 
