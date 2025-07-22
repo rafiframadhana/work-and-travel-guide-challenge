@@ -98,10 +98,11 @@ const Navbar: React.FC = () => {
           </div>
         </div>
 
+        {/* Mobile Menu */}
         {isMobileMenuOpen && (
           <div className="md:hidden border-t border-gray-200 bg-white">
             <div className="px-2 pt-2 pb-3 space-y-1">
-              {/* Navigation Links */}
+              {/* Nav Links */}
               <a
                 href="#home"
                 className="block px-3 py-2 text-gray-700 font-medium text-base hover:bg-gray-50 hover:text-blue-600 rounded-lg transition-colors"

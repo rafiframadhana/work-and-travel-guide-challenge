@@ -195,8 +195,6 @@ const JobCard: React.FC<JobCardProps> = ({ companies, onViewLocation }) => {
           selectedJob ? contactedCompanies.has(selectedJob.companyId) : false
         }
         onClose={closeJobModal}
-        onToggleContacted={toggleContacted}
-        onViewLocation={onViewLocation}
       />
     </>
   );

@@ -28,8 +28,6 @@ interface JobModalProps {
   job: Company | null;
   isContacted: boolean;
   onClose: () => void;
-  onToggleContacted: (companyId: string) => void;
-  onViewLocation: (company: Company) => void;
 }
 
 const JobModal: React.FC<JobModalProps> = ({
