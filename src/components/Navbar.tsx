@@ -35,19 +35,19 @@ const Navbar: React.FC = () => {
             <nav className="flex items-center space-x-8">
               <a
                 href="#home"
-                className="text-gray-700 font-medium text-lg hover:underline hover:underline-offset-[6px] hover:decoration-[#ffbb00] hover:decoration-2 transition-all duration-150"
+                className="text-gray-700 barlow-condensed font-medium text-xl hover:underline hover:underline-offset-[6px] hover:decoration-[#ffbb00] hover:decoration-2 transition-all duration-150"
               >
                 Home
               </a>
               <a
                 href="#travel"
-                className="text-gray-700 font-medium text-lg hover:underline hover:underline-offset-[6px] hover:decoration-[#ffbb00] hover:decoration-2 transition-all duration-150"
+                className="text-gray-700 barlow-condensed font-medium text-xl hover:underline hover:underline-offset-[6px] hover:decoration-[#ffbb00] hover:decoration-2 transition-all duration-150"
               >
                 Travel
               </a>
               <a
                 href="#jobs"
-                className="text-gray-700 font-medium text-lg hover:underline hover:underline-offset-[6px] hover:decoration-[#ffbb00] hover:decoration-2 transition-all duration-150"
+                className="text-gray-700 barlow-condensed font-medium text-xl hover:underline hover:underline-offset-[6px] hover:decoration-[#ffbb00] hover:decoration-2 transition-all duration-150"
               >
                 Jobs
               </a>
