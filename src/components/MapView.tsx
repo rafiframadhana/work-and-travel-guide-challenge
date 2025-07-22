@@ -1,4 +1,5 @@
 import React, { useEffect } from "react";
+import type { Company } from "@/types/company";
 import { MapContainer, TileLayer, Marker, Popup, useMap } from "react-leaflet";
 import L from "leaflet";
 import type { LatLngExpression } from "leaflet";
@@ -17,20 +18,6 @@ L.Icon.Default.mergeOptions({
   iconUrl: markerIcon,
   shadowUrl: markerShadow,
 });
-
-interface Company {
-  companyId: string;
-  email: string;
-  state: string;
-  firstName: string;
-  lastName: string;
-  phoneNumber: string;
-  companyName: string;
-  address: string;
-  latitude: number;
-  longitude: number;
-  industry: string;
-}
 
 interface MapViewProps {
   companies: Company[];

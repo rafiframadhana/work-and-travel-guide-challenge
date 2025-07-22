@@ -1,27 +1,6 @@
 import React from "react";
-import {
-  X,
-  User,
-  Mail,
-  Phone,
-  MapPin,
-  Send,
-  Check,
-} from "lucide-react";
-
-interface Company {
-  companyId: string;
-  email: string;
-  state: string;
-  firstName: string;
-  lastName: string;
-  phoneNumber: string;
-  companyName: string;
-  address: string;
-  latitude: number;
-  longitude: number;
-  industry: string;
-}
+import type { Company } from "@/types/company";
+import { X, User, Mail, Phone, MapPin, Send, Check } from "lucide-react";
 
 interface JobModalProps {
   isOpen: boolean;
@@ -38,8 +17,17 @@ const JobModal: React.FC<JobModalProps> = ({
 }) => {
   if (!isOpen || !job) return null;
 
+  const handleBackdropClick = (e: React.MouseEvent<HTMLDivElement>) => {
+    if (e.target === e.currentTarget) {
+      onClose();
+    }
+  };
+
   return (
-    <div className="fixed inset-0 backdrop-blur-sm bg-white/30 flex items-center justify-center p-4 z-[9999]">
+    <div
+      className="fixed inset-0 backdrop-blur-sm bg-white/30 flex items-center justify-center p-4 z-[9999]"
+      onClick={handleBackdropClick}
+    >
       <div className="bg-white rounded-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto shadow-xl border border-gray-200 scrollbar-hide">
         {/* Header */}
         <div className="sticky top-0 bg-white border-b border-gray-200 px-6 py-4 flex justify-between items-center rounded-t-xl">

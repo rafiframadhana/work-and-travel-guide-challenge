@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import type { Company } from "@/types/company";
 import JobModal from "./JobModal";
 import {
   User,
@@ -10,20 +11,6 @@ import {
   Navigation,
 } from "lucide-react";
 import { Tooltip } from "react-tooltip";
-
-interface Company {
-  companyId: string;
-  email: string;
-  state: string;
-  firstName: string;
-  lastName: string;
-  phoneNumber: string;
-  companyName: string;
-  address: string;
-  latitude: number;
-  longitude: number;
-  industry: string;
-}
 
 interface JobCardProps {
   companies: Company[];
