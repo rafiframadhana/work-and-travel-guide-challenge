@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import { useEffect } from "react";
 import type { Company } from "@/types/company";
 import { MapContainer, TileLayer, Marker, Popup, useMap } from "react-leaflet";
 import L from "leaflet";
@@ -26,8 +26,10 @@ interface MapViewProps {
 }
 
 // Component to control map view from inside the map
-const MapController: React.FC<{ focusedCompany: Company | null }> = ({
+const MapController = ({
   focusedCompany,
+}: {
+  focusedCompany: Company | null;
 }) => {
   const map = useMap();
 
@@ -44,11 +46,11 @@ const MapController: React.FC<{ focusedCompany: Company | null }> = ({
   return null;
 };
 
-const MapView: React.FC<MapViewProps> = ({
+export default function MapView({
   companies,
   focusedCompany,
   onCompanyClick,
-}) => {
+}: MapViewProps) {
   // Center of Australia as default
   const australiaCenter: LatLngExpression = [-25.2744, 133.7751];
 
@@ -135,6 +137,4 @@ const MapView: React.FC<MapViewProps> = ({
       </div>
     </>
   );
-};
-
-export default MapView;
+}

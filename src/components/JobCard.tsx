@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import type { Company } from "@/types/company";
 import JobModal from "./JobModal";
 import {
@@ -17,7 +17,7 @@ interface JobCardProps {
   onViewLocation: (company: Company) => void;
 }
 
-const JobCard: React.FC<JobCardProps> = ({ companies, onViewLocation }) => {
+export default function JobCard ({ companies, onViewLocation }: JobCardProps) {
   const [contactedCompanies, setContactedCompanies] = useState<Set<string>>(
     new Set()
   );
@@ -186,5 +186,3 @@ const JobCard: React.FC<JobCardProps> = ({ companies, onViewLocation }) => {
     </>
   );
 };
-
-export default JobCard;

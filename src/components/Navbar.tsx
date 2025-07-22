@@ -1,9 +1,9 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import logo from "../assets/logo.png";
 import { Tooltip } from "react-tooltip";
 import { Menu, X } from "lucide-react";
 
-const Navbar: React.FC = () => {
+const Navbar = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   const toggleMobileMenu = () => {

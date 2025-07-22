@@ -9,12 +9,12 @@ interface JobModalProps {
   onClose: () => void;
 }
 
-const JobModal: React.FC<JobModalProps> = ({
+export default function JobModal({
   isOpen,
   job,
   isContacted,
   onClose,
-}) => {
+}: JobModalProps) {
   if (!isOpen || !job) return null;
 
   const handleBackdropClick = (e: React.MouseEvent<HTMLDivElement>) => {
@@ -172,5 +172,3 @@ const JobModal: React.FC<JobModalProps> = ({
     </div>
   );
 };
-
-export default JobModal;
