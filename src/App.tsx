@@ -3,6 +3,7 @@ import JobCard from "./components/JobCard";
 import MapView from "./components/MapView";
 import Filters from "./components/Filters";
 import Navbar from "./components/Navbar";
+import Footer from "./components/Footer";
 import companiesData from "./data/companies.json";
 
 function App() {
@@ -39,10 +40,10 @@ function App() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 pb-5">
+    <div className="min-h-screen bg-gray-50">
       <Navbar />
 
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-8">
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-8 pb-0">
         <Filters onFilterChange={handleFilterChange} />
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
           <div className="space-y-6">
@@ -53,6 +54,8 @@ function App() {
           </div>
         </div>
       </main>
+
+      <Footer />
     </div>
   );
 }

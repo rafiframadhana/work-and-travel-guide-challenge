@@ -55,7 +55,7 @@ export default function JobCard ({ companies, onViewLocation }: JobCardProps) {
       </h3>
       <p className=" text-sm">Click "View Location" to see job on map</p>
 
-      <div className="space-y-4  max-h-[600px] overflow-y-auto">
+      <div className="space-y-4  max-h-[900px] overflow-y-auto">
         {companies.length === 0 ? (
           <div className="text-gray-500 text-center p-8">
             No companies match your search criteria.
