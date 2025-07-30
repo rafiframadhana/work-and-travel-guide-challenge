@@ -1,5 +1,5 @@
 import { useState, useMemo } from "react";
-import JobCard from "./components/JobCard";
+import JobList from "./components/JobList";
 import MapView from "./components/MapView";
 import Filters from "./components/Filters";
 import Navbar from "./components/Navbar";
@@ -45,9 +45,9 @@ function App() {
 
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-8 pb-0">
         <Filters onFilterChange={handleFilterChange} />
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 max-h-[100vh] mb-16">
           <div className="space-y-6">
-            <JobCard companies={filteredCompanies} onViewLocation={handleViewLocation} />
+            <JobList companies={filteredCompanies} onViewLocation={handleViewLocation} />
           </div>
           <div className="hidden md:block space-y-6">
             <MapView companies={filteredCompanies} focusedCompany={focusedCompany} />

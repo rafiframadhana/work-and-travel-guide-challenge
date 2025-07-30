@@ -25,7 +25,7 @@ export default function JobModal({
 
   return (
     <div
-      className="fixed inset-0 backdrop-blur-sm bg-white/30 flex items-center justify-center p-4 z-[9999]"
+      className="fixed inset-0 backdrop-blur-sm bg-white/30 flex items-center justify-center m-0 p-4 z-[9999]"
       onClick={handleBackdropClick}
     >
       <div className="bg-white rounded-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto shadow-xl border border-gray-200 scrollbar-hide">
