@@ -9,9 +9,10 @@ interface FiltersProps {
     industry: string;
     location: string;
   }) => void;
+  onScrollToTop?: () => void;
 }
 
-function Filters({ onFilterChange }: FiltersProps) {
+function Filters({ onFilterChange, onScrollToTop }: FiltersProps) {
   const [searchTerm, setSearchTerm] = useState('');
   const [industry, setIndustry] = useState('');
   const [location, setLocation] = useState('');
@@ -29,6 +30,11 @@ function Filters({ onFilterChange }: FiltersProps) {
       industry,
       location
     });
+    
+    // Scroll to top when filters change
+    if (onScrollToTop) {
+      onScrollToTop();
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [debouncedSearchTerm, industry, location]);
 

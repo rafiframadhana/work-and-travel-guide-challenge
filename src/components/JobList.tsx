@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import type { Company } from "@/types/company";
 import JobCard from "./JobCard";
-import { ChevronLeft, ChevronRight, Grid3X3, List } from "lucide-react";
+import { ChevronLeft, ChevronRight, Grid3X3, List, ArrowUp } from "lucide-react";
 
 interface JobListProps {
   companies: Company[];
@@ -13,6 +13,7 @@ const JOBS_PER_PAGE = 15;
 export default function JobList({ companies, onViewLocation }: JobListProps) {
   const [currentPage, setCurrentPage] = useState(1);
   const [viewMode, setViewMode] = useState<'card' | 'list'>('card');
+  const [showScrollToTop, setShowScrollToTop] = useState(false);
 
   // Reset to page 1 when companies list changes (filter changes)
   useEffect(() => {
@@ -48,6 +49,24 @@ export default function JobList({ companies, onViewLocation }: JobListProps) {
     if (currentPage < totalPages) {
       goToPage(currentPage + 1);
     }
+  };
+
+  // Handle scroll to top button visibility and functionality
+  const handleScrollToTop = () => {
+    const jobCardsScrollContainer = document.querySelector('.job-cards-container .overflow-y-auto');
+    if (jobCardsScrollContainer) {
+      jobCardsScrollContainer.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+  };
+
+  const handleScroll = (e: React.UIEvent<HTMLDivElement>) => {
+    const target = e.target as HTMLDivElement;
+    const scrollTop = target.scrollTop;
+    const scrollHeight = target.scrollHeight;
+    const clientHeight = target.clientHeight;
+    const scrollableHeight = scrollHeight - clientHeight;
+    const showButton = scrollTop > scrollableHeight * 0.25;
+    setShowScrollToTop(showButton);
   };
 
   // Generate page numbers for pagination
@@ -144,8 +163,11 @@ export default function JobList({ companies, onViewLocation }: JobListProps) {
       </div>
 
       {/* Job Cards Container */}
-      <div className="job-cards-container">
-        <div className="space-y-4 overflow-y-auto max-h-[600px]">
+      <div className="job-cards-container relative">
+        <div 
+          className="space-y-4 overflow-y-auto max-h-[600px]"
+          onScroll={handleScroll}
+        >
           {companies.length === 0 ? (
             <div className="text-gray-500 text-center p-8">
               No companies match your search criteria.
@@ -213,6 +235,17 @@ export default function JobList({ companies, onViewLocation }: JobListProps) {
             </>
           )}
         </div>
+
+        {/* Scroll to Top Button */}
+        {showScrollToTop && (
+          <button
+            onClick={handleScrollToTop}
+            className="absolute bottom-4 right-6 bg-black/40 hover:bg-gray-700 text-white p-3 rounded-full shadow-lg transition-all duration-200 cursor-pointer z-10"
+            aria-label="Scroll to top"
+          >
+            <ArrowUp className="w-5 h-5" />
+          </button>
+        )}
       </div>
     </div>
   );

@@ -39,12 +39,25 @@ function App() {
     setFocusedCompany(company);
   };
 
+  const handleScrollToTop = () => {
+    // Scroll to top of page
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+    
+    // Scroll the job cards container to the top
+    setTimeout(() => {
+      const jobCardsScrollContainer = document.querySelector('.job-cards-container .overflow-y-auto');
+      if (jobCardsScrollContainer) {
+        jobCardsScrollContainer.scrollTo({ top: 0, behavior: 'smooth' });
+      }
+    }, 100);
+  };
+
   return (
     <div className="min-h-screen bg-gray-50">
       <Navbar />
 
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-8 pb-0">
-        <Filters onFilterChange={handleFilterChange} />
+        <Filters onFilterChange={handleFilterChange} onScrollToTop={handleScrollToTop} />
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 max-h-[100vh] mb-16">
           <div className="space-y-6">
             <JobList companies={filteredCompanies} onViewLocation={handleViewLocation} />
