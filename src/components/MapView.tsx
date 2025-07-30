@@ -67,6 +67,13 @@ export default function MapView({
           center={australiaCenter}
           zoom={5}
           scrollWheelZoom={true}
+          maxBounds={[
+            [-90, -180],
+            [90, 180],
+          ]}
+          maxBoundsViscosity={1.0}
+          minZoom={2}
+          maxZoom={18}
           style={{ height: "100%", width: "100%" }}
         >
           <MapController focusedCompany={focusedCompany || null} />
