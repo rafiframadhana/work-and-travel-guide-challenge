@@ -1,4 +1,4 @@
-# Work & Travel Job Challenge
+# Work & Travel Guide Challenge
 
 ## Overview
 
