@@ -57,7 +57,6 @@ function App() {
             <ErrorBoundary>
               <Filters 
                 onFilterChange={handleFilterChange} 
-                isLoading={isLoading}
               />
             </ErrorBoundary>
             
