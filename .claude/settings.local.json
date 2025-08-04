@@ -1,0 +1,14 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npm run build:*)",
+      "Bash(claude mcp:*)",
+      "Bash(npx @modelcontextprotocol/server-sequential-thinking:*)",
+      "Bash(npx @21st-dev/magic@latest:*)",
+      "Bash(npm install:*)",
+      "Bash(npm run lint)",
+      "Bash(npm run dev:*)"
+    ],
+    "deny": []
+  }
+}

@@ -1,258 +1,205 @@
-import { useState, useEffect } from 'react'
-import companiesData from '../data/companies.json'
-import { Search, ChevronDown, MapPin, Filter } from 'lucide-react'
-import useDebounce from '../hooks/useDebounce'
+import { useState, useEffect, memo, useMemo, useCallback, useRef } from 'react';
+import type { FilterState } from '@/types/company';
+import companiesData from '../data/companies.json';
+import { Filter } from 'lucide-react';
+import useDebounce from '../hooks/useDebounce';
+import FilterInput from './FilterInput';
+import { loadFilters, saveFilters } from '@/utils/localStorage';
+import { APP_CONFIG, ARIA_LABELS, DESIGN_TOKENS } from '@/config/constants';
 
 interface FiltersProps {
-  onFilterChange: (filters: {
-    searchTerm: string;
-    industry: string;
-    location: string;
-  }) => void;
+  onFilterChange: (filters: FilterState) => void;
   onScrollToTop?: () => void;
 }
 
-function Filters({ onFilterChange, onScrollToTop }: FiltersProps) {
-  const [searchTerm, setSearchTerm] = useState('');
-  const [industry, setIndustry] = useState('');
-  const [location, setLocation] = useState('');
+const Filters = memo(({ 
+  onFilterChange
+}: FiltersProps) => {
+  const [filters, setFilters] = useState<FilterState>(() => loadFilters());
   const [showFilters, setShowFilters] = useState(false);
   const [showDesktopFilters, setShowDesktopFilters] = useState(false);
-  const debouncedSearchTerm = useDebounce(searchTerm, 500);
+  const debouncedSearchTerm = useDebounce(filters.searchTerm, APP_CONFIG.DEBOUNCE.SEARCH_DELAY);
+  
+  const mobileContentRef = useRef<HTMLDivElement>(null);
+  const desktopContentRef = useRef<HTMLDivElement>(null);
+  const [mobileHeight, setMobileHeight] = useState<number>(0);
+  const [desktopHeight, setDesktopHeight] = useState<number>(0);
 
-  // Extract unique industries and states from the data
-  const uniqueIndustries = [...new Set(companiesData.map(company => company.industry))].sort();
-  const uniqueStates = [...new Set(companiesData.map(company => company.state))].sort();
+  // Memoize expensive calculations
+  const { uniqueIndustries, uniqueStates } = useMemo(() => ({
+    uniqueIndustries: [...new Set(companiesData.map(company => company.industry))].sort(),
+    uniqueStates: [...new Set(companiesData.map(company => company.state))].sort(),
+  }), []);
 
   useEffect(() => {
-    onFilterChange({
+    const currentFilters = {
       searchTerm: debouncedSearchTerm,
-      industry,
-      location
-    });
+      industry: filters.industry,
+      location: filters.location
+    };
     
-    // Scroll to top when filters change
-    if (onScrollToTop) {
-      onScrollToTop();
+    onFilterChange(currentFilters);
+    saveFilters(currentFilters);
+  }, [debouncedSearchTerm, filters.industry, filters.location, onFilterChange]);
+
+  const updateFilter = useCallback((key: keyof FilterState) => (value: string) => {
+    setFilters(prev => ({ ...prev, [key]: value }));
+  }, []);
+
+  const clearFilters = useCallback(() => {
+    const emptyFilters = { searchTerm: '', industry: '', location: '' };
+    setFilters(emptyFilters);
+    saveFilters(emptyFilters);
+  }, []);
+
+  const hasActiveFilters = filters.searchTerm || filters.industry || filters.location;
+
+  // Measure content height for smooth animations
+  useEffect(() => {
+    if (mobileContentRef.current) {
+      setMobileHeight(mobileContentRef.current.scrollHeight);
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [debouncedSearchTerm, industry, location]);
+  }, [showFilters, filters]);
 
-  const handleSearchChange = (value: string) => {
-    setSearchTerm(value);
-  };
+  useEffect(() => {
+    if (desktopContentRef.current) {
+      setDesktopHeight(desktopContentRef.current.scrollHeight);
+    }
+  }, [showDesktopFilters, filters]);
 
-  const handleIndustryChange = (value: string) => {
-    setIndustry(value);
-  };
+  const renderFilterContent = () => (
+    <div className="space-y-4">
+      <FilterInput
+        id="search"
+        label="Search"
+        value={filters.searchTerm}
+        onChange={updateFilter('searchTerm')}
+        type="search"
+        placeholder="Search companies, contacts, locations..."
+      />
 
-  const handleLocationChange = (value: string) => {
-    setLocation(value);
-  };
-
-  const clearFilters = () => {
-    setSearchTerm('');
-    setIndustry('');
-    setLocation('');
-  };
-
-  const hasActiveFilters = searchTerm || industry || location;
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <FilterInput
+          id="industry"
+          label="Industry"
+          value={filters.industry}
+          onChange={updateFilter('industry')}
+          type="select"
+          placeholder="All Industries"
+          options={uniqueIndustries}
+        />
+        
+        <FilterInput
+          id="location"
+          label="Location"
+          value={filters.location}
+          onChange={updateFilter('location')}
+          type="select"
+          placeholder="All Locations"
+          options={uniqueStates}
+        />
+      </div>
+    </div>
+  );
 
   return (
     <div className="mb-8 bg-white rounded-lg shadow-sm border border-gray-200 p-4">
-        {/* Desktop Header */}
-        <div className={`hidden md:flex items-center justify-between ${showDesktopFilters ? 'mb-4' : ''}`}>
-          <h2 className="text-xl font-bold text-gray-800">Find Your Perfect Job</h2>
-          {/* Clear Filters Button - Desktop */}
-          <div className="flex items-center gap-2">
-            {hasActiveFilters && (
-              <button
-                onClick={clearFilters}
-                className="flex cursor-pointer items-center gap-2 px-3 py-2 border border-red-300 rounded-md bg-white hover:bg-red-50 transition-colors text-sm text-red-600"
-              >
-                Clear Filters
-              </button>
-            )}
-            
-            {/* Desktop Filter Toggle Button */}
+      {/* Desktop Header */}
+      <div className={`hidden md:flex items-center justify-between ${showDesktopFilters ? 'mb-4' : ''}`}>
+        <h2 className="text-xl font-bold text-gray-800">Find Your Perfect Job</h2>
+        <div className="flex items-center gap-2">
+          {hasActiveFilters && (
             <button
-              onClick={() => setShowDesktopFilters(!showDesktopFilters)}
-              className="flex cursor-pointer items-center gap-2 px-3 py-2 border border-gray-300 rounded-md bg-white hover:bg-gray-50 transition-colors text-sm"
+              onClick={clearFilters}
+              aria-label={ARIA_LABELS.CLEAR_FILTERS}
+              className="flex cursor-pointer items-center gap-2 px-3 py-2 border border-red-300 rounded-md bg-white hover:bg-red-50 transition-colors text-sm text-red-600 font-medium"
             >
-              <Filter className="h-4 w-4 text-gray-600" />
-              <span className="text-gray-700 font-medium">
-                {showDesktopFilters ? 'Hide Filters' : 'Show Filters'}
-              </span>
+              Clear Filters
             </button>
-          </div>
-        </div>
-
-        {/* Mobile Header */}
-        <div className={`md:hidden flex items-center justify-between ${showFilters ? 'mb-4' : ''}`}>
-          <h2 className="text-xl font-bold text-gray-800">Find Your Perfect Job</h2>
+          )}
           
-          {/* Mobile Filter Toggle Button */}
           <button
-            onClick={() => setShowFilters(!showFilters)}
-            className="cursor-pointer flex items-center justify-center p-2 border border-gray-300 rounded-md bg-white hover:bg-gray-50 transition-colors"
+            onClick={() => setShowDesktopFilters(!showDesktopFilters)}
+            aria-label={ARIA_LABELS.TOGGLE_FILTERS}
+            aria-expanded={showDesktopFilters}
+            className={`flex cursor-pointer items-center gap-2 px-3 py-2 border border-gray-300 rounded-md bg-white hover:bg-gray-50 ${DESIGN_TOKENS.TRANSITIONS.COLORS} text-sm`}
           >
-            <Filter className="h-5 w-5 text-gray-600" />
+            <Filter className="h-4 w-4 text-gray-600" />
+            <span className="text-gray-700 font-medium">
+              {showDesktopFilters ? 'Hide Filters' : 'Show Filters'}
+            </span>
           </button>
         </div>
+      </div>
 
-        {/* Desktop Layout */}
-        <div className="hidden md:block">
-          {showDesktopFilters && (
-            <div className="space-y-3">
-              <div className="relative">
-                <label htmlFor="search" className="block text-sm font-medium text-gray-700 mb-1">
-                  Search
-                </label>
-                <div className="relative">
-                  <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                    <Search className="h-4 w-4 text-gray-400" />
-                  </div>
-                  <input
-                    id="search"
-                    type="text"
-                    placeholder="Search companies..."
-                    className="block w-full pl-9 pr-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors placeholder-gray-400 text-sm"
-                    value={searchTerm}
-                    onChange={(e) => handleSearchChange(e.target.value)}
-                  />
-                </div>
-              </div>
+      {/* Mobile Header */}
+      <div className={`md:hidden flex items-center justify-between ${showFilters ? 'mb-4' : ''}`}>
+        <h2 className="text-xl font-bold text-gray-800">Find Your Perfect Job</h2>
+        
+        <button
+          onClick={() => setShowFilters(!showFilters)}
+          aria-label={ARIA_LABELS.TOGGLE_FILTERS}
+          aria-expanded={showFilters}
+          className={`cursor-pointer flex items-center justify-center p-2 border border-gray-300 rounded-md bg-white hover:bg-gray-50 ${DESIGN_TOKENS.TRANSITIONS.COLORS}`}
+        >
+          <Filter className="h-5 w-5 text-gray-600" />
+        </button>
+      </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                <div className="relative">
-                  <label htmlFor="industry" className="block text-sm font-medium text-gray-700 mb-1">
-                    Industry
-                  </label>
-                  <div className="relative">
-                    <select 
-                      id="industry"
-                      className="block w-full px-3 py-2 border border-gray-300 cursor-pointer rounded-md transition-colors text-sm appearance-none bg-white"
-                      value={industry}
-                      onChange={(e) => handleIndustryChange(e.target.value)}
-                    >
-                      <option value="">All Industries</option>
-                      {uniqueIndustries.map(industryOption => (
-                        <option key={industryOption} value={industryOption}>{industryOption}</option>
-                      ))}
-                    </select>
-                    <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
-                      <ChevronDown className="h-4 w-4 text-gray-400" />
-                    </div>
-                  </div>
-                </div>
-                
-                <div className="relative">
-                  <label htmlFor="location" className="block text-sm font-medium text-gray-700 mb-1">
-                    Location
-                  </label>
-                  <div className="relative">
-                    <select 
-                      id="location"
-                      className="block w-full px-3 py-2 border border-gray-300 cursor-pointer rounded-md transition-colors text-sm appearance-none bg-white"
-                      value={location}
-                      onChange={(e) => handleLocationChange(e.target.value)}
-                    >
-                      <option value="">All Locations</option>
-                      {uniqueStates.map(state => (
-                        <option key={state} value={state}>{state}</option>
-                      ))}
-                    </select>
-                    <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
-                      <MapPin className="h-4 w-4 text-gray-400" />
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          )}
+      {/* Clear Filters Button - Mobile */}
+      {showFilters && hasActiveFilters && (
+        <div className="md:hidden mb-3">
+          <button
+            onClick={clearFilters}
+            aria-label={ARIA_LABELS.CLEAR_FILTERS}
+            className="cursor-pointer flex items-center justify-center gap-2 px-3 py-2 border border-red-300 rounded-md bg-white hover:bg-red-50 transition-colors text-sm text-red-600 font-medium w-full"
+          >
+            Clear Filters
+          </button>
         </div>
+      )}
 
-        {/* Mobile Layout */}
-        <div className="md:hidden space-y-3">
-          {showFilters && (
-            <div className="space-y-3">
-              {/* Clear Filters Button - Mobile */}
-              {hasActiveFilters && (
-                <button
-                  onClick={clearFilters}
-                  className="cursor-pointer flex items-center justify-center gap-2 px-3 py-2 border border-red-300 rounded-md bg-white hover:bg-red-50 transition-colors text-sm text-red-600 w-full"
-                >
-                  Clear Filters
-                </button>
-              )}
-              
-              <div className="relative">
-                <label htmlFor="search-mobile" className="block text-sm font-medium text-gray-700 mb-1">
-                  Search
-                </label>
-                <div className="relative">
-                  <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                    <Search className="h-4 w-4 text-gray-400" />
-                  </div>
-                  <input
-                    id="search-mobile"
-                    type="text"
-                    placeholder="Search companies..."
-                    className="block w-full pl-9 pr-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors placeholder-gray-400 text-sm"
-                    value={searchTerm}
-                    onChange={(e) => handleSearchChange(e.target.value)}
-                  />
-                </div>
-              </div>
-
-              <div className="relative">
-                <label htmlFor="industry-mobile" className="block text-sm font-medium text-gray-700 mb-1">
-                  Industry
-                </label>
-                <div className="relative">
-                  <select 
-                    id="industry-mobile"
-                    className="block w-full px-3 py-2 border border-gray-300 cursor-pointer rounded-md transition-colors text-sm appearance-none bg-white"
-                    value={industry}
-                    onChange={(e) => handleIndustryChange(e.target.value)}
-                  >
-                    <option value="">All Industries</option>
-                    {uniqueIndustries.map(industryOption => (
-                      <option key={industryOption} value={industryOption}>{industryOption}</option>
-                    ))}
-                  </select>
-                  <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
-                    <ChevronDown className="h-4 w-4 text-gray-400" />
-                  </div>
-                </div>
-              </div>
-              
-              <div className="relative">
-                <label htmlFor="location-mobile" className="block text-sm font-medium text-gray-700 mb-1">
-                  Location
-                </label>
-                <div className="relative">
-                  <select 
-                    id="location-mobile"
-                    className="block w-full px-3 py-2 border border-gray-300 cursor-pointer rounded-md transition-colors text-sm appearance-none bg-white"
-                    value={location}
-                    onChange={(e) => handleLocationChange(e.target.value)}
-                  >
-                    <option value="">All Locations</option>
-                    {uniqueStates.map(state => (
-                      <option key={state} value={state}>{state}</option>
-                    ))}
-                  </select>
-                  <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
-                    <MapPin className="h-4 w-4 text-gray-400" />
-                  </div>
-                </div>
-              </div>
-            </div>
-          )}
+      {/* Desktop Layout */}
+      <div className="hidden md:block">
+        <div 
+          className={`overflow-hidden transition-all duration-400 ease-in-out ${
+            showDesktopFilters 
+              ? 'opacity-100 transform translate-y-0' 
+              : 'opacity-0 transform -translate-y-3 pointer-events-none'
+          }`}
+          style={{
+            height: showDesktopFilters ? `${desktopHeight}px` : '0px',
+            transitionProperty: 'height, opacity, transform'
+          }}
+        >
+          <div ref={desktopContentRef} className="pt-4">
+            {renderFilterContent()}
+          </div>
         </div>
+      </div>
+
+      {/* Mobile Layout */}
+      <div className="md:hidden">
+        <div 
+          className={`overflow-hidden transition-all duration-400 ease-in-out ${
+            showFilters 
+              ? 'opacity-100 transform translate-y-0' 
+              : 'opacity-0 transform -translate-y-3 pointer-events-none'
+          }`}
+          style={{
+            height: showFilters ? `${mobileHeight}px` : '0px',
+            transitionProperty: 'height, opacity, transform'
+          }}
+        >
+          <div ref={mobileContentRef} className="pt-4">
+            {renderFilterContent()}
+          </div>
+        </div>
+      </div>
     </div>
-  )
-}
+  );
+});
 
-export default Filters
+Filters.displayName = 'Filters';
+
+export default Filters;

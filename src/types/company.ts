@@ -11,3 +11,31 @@ export interface Company {
   longitude: number;
   industry: string;
 }
+
+export interface FilterState {
+  searchTerm: string;
+  industry: string;
+  location: string;
+}
+
+export type ViewMode = 'card' | 'list';
+
+export interface PaginationInfo {
+  currentPage: number;
+  totalPages: number;
+  totalItems: number;
+  itemsPerPage: number;
+  startIndex: number;
+  endIndex: number;
+}
+
+export interface AppError {
+  message: string;
+  code?: string;
+  details?: unknown;
+}
+
+export interface LoadingState {
+  isLoading: boolean;
+  error?: AppError | null;
+}

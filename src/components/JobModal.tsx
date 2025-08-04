@@ -1,6 +1,7 @@
-import React from "react";
-import type { Company } from "@/types/company";
-import { X, User, Mail, Phone, MapPin, Send, Check } from "lucide-react";
+import { memo, useEffect } from 'react';
+import type { Company } from '@/types/company';
+import { X, User, Mail, Phone, MapPin, Send, Check } from 'lucide-react';
+import { ARIA_LABELS, DESIGN_TOKENS } from '@/config/constants';
 
 interface JobModalProps {
   isOpen: boolean;
@@ -9,12 +10,31 @@ interface JobModalProps {
   onClose: () => void;
 }
 
-export default function JobModal({
+const JobModal = memo<JobModalProps>(({
   isOpen,
   job,
   isContacted,
   onClose,
-}: JobModalProps) {
+}) => {
+  // Handle escape key
+  useEffect(() => {
+    const handleEscape = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        onClose();
+      }
+    };
+
+    if (isOpen) {
+      document.addEventListener('keydown', handleEscape);
+      document.body.style.overflow = 'hidden';
+    }
+
+    return () => {
+      document.removeEventListener('keydown', handleEscape);
+      document.body.style.overflow = 'unset';
+    };
+  }, [isOpen, onClose]);
+
   if (!isOpen || !job) return null;
 
   const handleBackdropClick = (e: React.MouseEvent<HTMLDivElement>) => {
@@ -27,20 +47,25 @@ export default function JobModal({
     <div
       className="fixed inset-0 backdrop-blur-sm bg-white/30 flex items-center justify-center m-0 p-4 z-[9999]"
       onClick={handleBackdropClick}
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="modal-title"
+      aria-describedby="modal-description"
     >
-      <div className="bg-white rounded-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto shadow-xl border border-gray-200 scrollbar-hide">
+      <div className={`bg-white rounded-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto ${DESIGN_TOKENS.SHADOWS.XL} border border-gray-200 scrollbar-hide`}>
         {/* Header */}
         <div className="sticky top-0 bg-white border-b border-gray-200 px-6 py-4 flex justify-between items-center rounded-t-xl">
-          <h2 className="text-2xl font-bold text-gray-900">Job Details</h2>
+          <h2 id="modal-title" className="text-2xl font-bold text-gray-900">Job Details</h2>
           <button
             onClick={onClose}
-            className="p-2 hover:bg-gray-100 rounded-lg transition-colors cursor-pointer"
+            aria-label={ARIA_LABELS.CLOSE_MODAL}
+            className={`p-2 hover:bg-gray-100 rounded-lg ${DESIGN_TOKENS.TRANSITIONS.COLORS} cursor-pointer`}
           >
             <X className="w-6 h-6" />
           </button>
         </div>
 
-        <div className="p-6">
+        <div className="p-6" id="modal-description">
           {/* Company Info */}
           <div className="mb-6">
             <div className="flex items-start justify-between mb-4">
@@ -49,14 +74,14 @@ export default function JobModal({
                   {job.companyName}
                 </h3>
                 <div className="flex items-center space-x-3 text-gray-600 mb-3">
-                  <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-blue-100 text-blue-800">
+                  <span className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium ${DESIGN_TOKENS.COLORS.PRIMARY[100]} text-blue-800`}>
                     {job.industry}
                   </span>
                   <span className="text-sm">{job.state}, Australia</span>
                 </div>
               </div>
               {isContacted && (
-                <div className="flex items-center space-x-2 text-green-600 bg-green-50 px-3 py-2 rounded-lg">
+                <div className={`flex items-center space-x-2 text-green-600 ${DESIGN_TOKENS.COLORS.SUCCESS[50]} px-3 py-2 rounded-lg`}>
                   <Check className="w-5 h-5" />
                   <span className="font-medium">Already Contacted</span>
                 </div>
@@ -88,6 +113,7 @@ export default function JobModal({
                 <a
                   href={`mailto:${job.email}`}
                   className="text-blue-600 hover:underline"
+                  aria-label={`Send email to ${job.email}`}
                 >
                   {job.email}
                 </a>
@@ -101,6 +127,7 @@ export default function JobModal({
                 <a
                   href={`tel:${job.phoneNumber}`}
                   className="text-blue-600 hover:underline"
+                  aria-label={`Call ${job.phoneNumber}`}
                 >
                   {job.phoneNumber}
                 </a>
@@ -162,7 +189,10 @@ export default function JobModal({
 
           {/* Apply Button */}
           <div className="flex flex-col sm:flex-row gap-3 pt-4 border-t border-gray-200">
-            <button className="flex-1 inline-flex items-center justify-center px-6 py-3 cursor-pointer bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 transition-colors">
+            <button 
+              aria-label={ARIA_LABELS.APPLY_JOB}
+              className={`flex-1 inline-flex items-center justify-center px-6 py-3 cursor-pointer ${DESIGN_TOKENS.COLORS.PRIMARY[600]} text-white rounded-lg font-medium hover:${DESIGN_TOKENS.COLORS.PRIMARY[700]} ${DESIGN_TOKENS.TRANSITIONS.COLORS}`}
+            >
               <Send className="w-5 h-5 mr-2" />
               Apply Now
             </button>
@@ -171,4 +201,8 @@ export default function JobModal({
       </div>
     </div>
   );
-};
+});
+
+JobModal.displayName = 'JobModal';
+
+export default JobModal;
